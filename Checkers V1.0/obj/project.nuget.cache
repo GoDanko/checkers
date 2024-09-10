@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "kdfzXP4VO6Y=",
+  "success": true,
+  "projectFilePath": "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\Cheeckers.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\itali\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.8\\microsoft.netcore.app.runtime.win-x64.8.0.8.nupkg.sha512",
+    "C:\\Users\\itali\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.8\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.8.nupkg.sha512",
+    "C:\\Users\\itali\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.8\\microsoft.aspnetcore.app.runtime.win-x64.8.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}
