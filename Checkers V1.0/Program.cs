@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.IO;
+using System.Net;
 
 class Cheeckers
 {    
@@ -9,15 +10,16 @@ class Cheeckers
     static bool drawMenu = true;                            // Controls if the menu is drawn
     static bool drawGUI = true;                             // Controls if the GUI be drawn (debug)
     static bool player1Moved;                               // Controls the turns of a player
-    static bool? isPremiumSelected;
-    static string victoryPrompt = "Game ended undisputed.";
+    static bool? isPremiumSelected;                         // Controls the type of unit that is chosen
+    static string victoryPrompt = "Game ended undisputed."; // Endgame message
+    static string basePath = AppDomain.CurrentDomain.BaseDirectory;// Directory where the game is
     static (int, int) inputCoordinates = (0,0);             // Holds the player Input (trusted reference: assign once per game loop, and only copy)
     static int playerCoordinateX;                           // Holds the second memory layer for coordinate X
     static int playerCoordinateY;                           // Holds the second memory layer for coordinate Y
     static int targetCoordinateX;                           // Holds the actual coordinate X of the player
     static int targetCoordinateY;                           // Holds the actual coordinate Y of the player
-    static int behindTargetCoordinateX;
-    static int behindTargetCoordinateY;
+    static int behindTargetCoordinateX;                     // Holds the coordinate X of value behind the TargetCoordinate
+    static int behindTargetCoordinateY;                     // Holds the coordinate Y of value behind the TargetCoordinate
     static (int, int) possibleCoordinateX = (0,0);          // Holds the actual coordinate Y of the player
     static (int, int) possibleCoordinateY = (0,0);          // Holds the actual coordinate Y of the player
     static int highestX = 16;                               // Holds the variable of the highest possible coordinate X
@@ -49,7 +51,7 @@ class Cheeckers
     {
         {nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered},
         {" ", " ", " ", nRendered, border, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border2, border, nRendered},
-        {"8", " ", " ", nRendered, border, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, border, nRendered},
+        {"8", " ", " ", nRendered, border, whiteTile, wallY, player1, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, border, nRendered},
         {" ", " ", " ", nRendered, border, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, border, nRendered},
         {"7", " ", " ", nRendered, border, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, wallY, player2, wallY, whiteTile, border, nRendered},
         {" ", " ", " ", nRendered, border, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, wallJoint, wallx, border, nRendered},
@@ -68,9 +70,10 @@ class Cheeckers
         {nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered, nRendered},
         {" ", " ", " ", nRendered, " ", "A", " ", "B", " ", "C", " ", "D", " ", "E", " ", "F", " ", "G", " ", "H", " ", nRendered}
     };
-    
-    static void Main(string[] args) // MAIN METHOD
+
+    static void Main(string[] args) // MAIN method
     {
+
         Draw(board);
 
         do
@@ -98,7 +101,6 @@ class Cheeckers
 
     public static (int, int) InputController(string? stringInput) // Assignes token based on the input
     {
-
         if(stringInput?.Length == 2 && drawBoard)
         {
             inputCoordinates = CheckIfIsCoordinate(stringInput);
@@ -124,7 +126,23 @@ class Cheeckers
             inputCoordinates = (24, 0);
         }
 
+        string logFormula = Convert.ToString(inputCoordinates.Item1) + ":" + Convert.ToString(inputCoordinates.Item2);
+        LoggerOut(logFormula);
+
         return inputCoordinates;
+    }
+
+    public static void LoggerOut(string toBeLogged)
+    {
+        if(!File.Exists(Path.Combine(basePath, "log.txt")))
+        {
+            using (File.CreateText(Path.Combine(basePath, "log.txt"))) {}
+        }
+        
+        using (StreamWriter logs = File.AppendText(Path.Combine(basePath, "log.txt")))
+        {
+            logs.WriteLine($"{toBeLogged}");
+        }
     }
 
     public static (int, int) CheckIfIsCoordinate(string stringInput) // translates the input string into a clean token
@@ -260,7 +278,8 @@ class Cheeckers
         }
         else if(board[targetCoordinateX , targetCoordinateY] == blackTile)
         {
-            if(isPremiumSelected == false){
+            if(isPremiumSelected == false)
+            {
                 if(CheckIfValidInput(false, false, theOtherPlayer, theOtherPremium))
                 {
                     board[playerCoordinateX, playerCoordinateY] = blackTile;
@@ -284,7 +303,8 @@ class Cheeckers
         }
         else if(board[targetCoordinateX, targetCoordinateY] == theOtherPlayer || board[targetCoordinateX, targetCoordinateY] == theOtherPremium)
         {
-            if(isPremiumSelected == false){
+            if(isPremiumSelected == false)
+            {
                 if(CheckIfValidInput(true, false, theOtherPlayer, theOtherPremium))
                 {
                     board[playerCoordinateX, playerCoordinateY] = blackTile;
