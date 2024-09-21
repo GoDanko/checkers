@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\Cheeckers.csproj": {}
+    "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj": {}
   },
   "projects": {
-    "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\Cheeckers.csproj": {
+    "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\Cheeckers.csproj",
+        "projectUniqueName": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj",
         "projectName": "Cheeckers",
-        "projectPath": "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\Cheeckers.csproj",
+        "projectPath": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj",
         "packagesPath": "C:\\Users\\itali\\.nuget\\packages\\",
-        "outputPath": "C:\\users\\itali\\desktop\\C#\\mywork\\cheeckers\\obj\\",
+        "outputPath": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\itali\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -53,31 +53,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.8, 8.0.8]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[8.0.8, 8.0.8]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-              "version": "[8.0.8, 8.0.8]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
         }
       }
     }

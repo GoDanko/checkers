@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Cheeckers
-build_property.ProjectDir = C:\Users\itali\Desktop\C#\MyWork\cheeckers\
+build_property.ProjectDir = C:\Users\itali\Desktop\C#\MyWork\checkers\checkers v1.0\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
