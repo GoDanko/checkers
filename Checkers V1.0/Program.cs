@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
@@ -6,18 +7,23 @@ using System.Transactions;
 
 class Cheeckers
 {    
-    // More or less important variables
+    // Configuration Variables
+    static string basePath = AppDomain.CurrentDomain.BaseDirectory; // Directory where the game is
+    static string logPath = ManageLogFiles();
+    static string savePath = ManageSaveFiles();
     static bool clearConsole = true;                        // Controls if the draw function deletes previous frames 
-    static bool victory = false;                            // Controls the game loop
     static bool drawBoard = false;                          // Controls if the gameboard is drawn
     static bool drawMenu = true;                            // Controls if the menu is drawn
     static bool drawGUI = true;                             // Controls if the GUI be drawn (debug)
+
+    // More or less important variables
+    static bool victory = false;                            // Controls the game loop
     static bool player1Moved;                               // Controls the turns of a player
     static bool? isPremiumSelected;                         // Controls the type of unit that is chosen
+    static string log = "";
     static string victoryPrompt = "Game ended undisputed."; // Endgame message
-    static string basePath = AppDomain.CurrentDomain.BaseDirectory; // Directory where the game is
-    static string logPath = HandleLogs();
     static (int, int) inputCoordinates = (0,0);             // Holds the player Input (trusted reference: assign once per game loop, and only copy)
+    static byte counter = 0;
     static int playerCoordinateX;                           // Holds the second memory layer for coordinate X
     static int playerCoordinateY;                           // Holds the second memory layer for coordinate Y
     static int targetCoordinateX;                           // Holds the actual coordinate X of the player
@@ -76,70 +82,97 @@ class Cheeckers
 
 
     static void Main(string[] args) { // MAIN method
-
+        
         Draw(board);
 
         do {
-            InstructionController(RequestInput());
-            Draw(board);
+            log = "";
+            ExecuteInstruction(RequestInstruction().ToLower());
+            LogIt(logPath, log);
+            Draw(board );
+            
             if (CheckForVictory()) break;
         } while (!victory);
 
+        LogIt(logPath, "\n           ----------------------------------------------------\n");
+        LogIt(logPath, " RESULT:   " + victoryPrompt + "\n");
         if (drawBoard) Console.WriteLine($"\n{victoryPrompt}\n");
     }
 
-    static string HandleLogs() {
-        if (!Directory.Exists(Path.Combine(basePath, "Logs"))) Directory.CreateDirectory(Path.Combine(basePath, "Logs"));
+    static string ManageSaveFiles() {
+        if (!Directory.Exists(Path.Combine(basePath, "Saves"))) Directory.CreateDirectory(Path.Combine(basePath, "Saves"));
+        return Path.Combine(basePath, "Saves");
+    }
 
-        for (int i = 257; i < 256; i++) {
-            string filePath = basePath + @"Logs\Entry" + i + ".txt";
+    static void SaveIt() {
+        Console.WriteLine("Choose a save name:");
+        string? saveName = Console.ReadLine();
 
-            if (File.Exists(filePath)) {
-                Console.WriteLine($"Entry {i} already exists");
-                continue;
-            } else if (!File.Exists(filePath)) {
-                Console.WriteLine($"Creating entry {i} at {filePath}");
-                File.CreateText(filePath);
+        if (saveName != null && saveName.Length > 4) {
+            string filePath = Path.Combine(savePath, saveName.ToLower() + ".txt");
 
-                // using (StreamWriter logs = File.AppendText(filePath)) {
-                //     logs.WriteLine("\n                     Checkers - the log File                    \n");
-                // }
-                return filePath;
+            if (!File.Exists(filePath)) {
+                using (File.CreateText(filePath)) {}
+                Console.WriteLine($"the Game has been saved as '{saveName}'");
+            } else {
+                Console.WriteLine($"File '{saveName}' already exists. Overwrite it? (y/n)");
+                string? answer = Console.ReadLine();
+                if (answer == "y") Console.WriteLine("Game Saved");
             }
         }
-
-        File.CreateText(Path.Combine(basePath, @"Logs/LogXXX.txt"));
-        return basePath + @"Logs/LogXXX.txt";
     }
 
-    public static int RequestInput() { // Request an input and verify its compliance
+    static void LoadIt() {
+        Console.WriteLine("Type the save to load:");
+        string? saveName = Console.ReadLine();
+
+        if (saveName != null && saveName.Length > 4) {
+            string loadPath = Path.Combine(basePath, "Saves", saveName.ToLower() + ".txt");
+            if (File.Exists(loadPath)) Console.WriteLine($"Loading {saveName}...");
+            else Console.WriteLine("Invalid file name");
+        }
+    }
+
+    public static string RequestInstruction() { // Request an input and verify its compliance
         string? stringInput = Console.ReadLine();
         if (stringInput == null) stringInput = "";
-        inputCoordinates = InputController(stringInput.ToLower());
-
-        if (inputCoordinates.Item2 == 0) return inputCoordinates.Item1;
-        else return 0;
+        return stringInput;
     }
 
-    public static (int, int) InputController(string stringInput) { // Assignes token based on the input
-        if (stringInput?.Length == 2 && drawBoard) inputCoordinates = CheckIfIsCoordinate(stringInput);
-        else if (stringInput == "run" || stringInput == "start") inputCoordinates = (20, 0);
-        else if (stringInput == "back" || stringInput == "cancel") inputCoordinates = (21, 0);
-        else if (stringInput == "quit" || stringInput == "exit" || stringInput == "leave") inputCoordinates = (22, 0);
-        else if (stringInput == "cls") inputCoordinates = (23, 0);
-        else if (stringInput == "scan") inputCoordinates = (24, 0);
+    public static void ExecuteInstruction(string stringInput) { // Assignes token based on the input
+        targetCoordinateX = 0;
+        targetCoordinateY = 0;
+        inputCoordinates = (0,0);
 
-        string logFormula = inputCoordinates.Item1.ToString() + ":" + inputCoordinates.Item2.ToString();
-        // LogIt(logFormula);
-
-        return inputCoordinates;
+        if (stringInput.Length == 2 && EncodeInstruction(stringInput) && (inputCoordinates.Item1 != 0 || inputCoordinates.Item2 != 0)) {
+            if (!player1Moved) GameMaster(player1, selectedPlayer1, premium1, selectedPremium1, player2, premium2, stringInput);
+            else GameMaster(player2, selectedPlayer2, premium2, selectedPremium2, player1, premium1, stringInput);
+        } else if (stringInput == "run" || stringInput == "start") {
+            drawMenu = false;
+            drawBoard = true;
+        }
+        else if (stringInput == "back" || stringInput == "cancel") {
+            drawMenu = true;
+            drawBoard = false;
+        }
+        else if (stringInput == "quit" || stringInput == "exit" || stringInput == "leave") {
+            victory = true;
+            drawGUI = false;
+        }
+        else if (stringInput == "cls") {
+            victory = true;
+            drawGUI = false;
+            Console.Clear();
+        }
+        else if (stringInput == "save") {
+            SaveIt();
+        }
+        else if (stringInput == "load") {
+            LoadIt();
+        }
     }
 
-    // static void LogIt(string input) {
-    //     using (StreamWriter logs = File.AppendText(logPath)) {}
-    // }
-
-    public static (int, int) CheckIfIsCoordinate(string stringInput) { // translates the input string into a clean token
+    public static bool EncodeInstruction(string stringInput) { // translates the input string into a clean token
         for (int i = 0; i < 2; i++) {
             switch (stringInput[i]) {
                 case '1':
@@ -191,47 +224,30 @@ class Cheeckers
                     targetCoordinateY = highestY;
                     break;
                 default:
-                    targetCoordinateX = 20;
+                    targetCoordinateX = 0;
                     targetCoordinateY = 0;
                     break;
             }
         }
+        inputCoordinates.Item1 = targetCoordinateX;
+        inputCoordinates.Item2 = targetCoordinateY;
 
-        return (targetCoordinateX, targetCoordinateY);
+        if (inputCoordinates.Item1 == 0 && inputCoordinates.Item2 == 0) return false;
+        else return true;
     }
 
-    public static void InstructionController(int input) { // Applies changes
-        if (input == 0) {
-            if (drawBoard && !drawMenu) {
-                if (!player1Moved) GameMaster(player1, selectedPlayer1, premium1, selectedPremium1, player2, premium2);
-                else GameMaster(player2, selectedPlayer2, premium2, selectedPremium2, player1, premium1);
-            }
-        } else if (input == 20) { // Start the game
-            drawBoard = true;
-            drawMenu = false;
-        } else if (input == 21) { // Move back to the menu
-            drawMenu = true;
-            drawBoard = false;
-        } else if (input == 22) { // Quit the game
-            victory = true;
-            drawGUI = false;
-        } else if (input == 23) { // Quit and clear
-            victory = true;
-            drawGUI = false;
-            Console.Clear();
-        } else if (input == 24) {
-            CheckForVictory();
-        }
-    }
-
-    public static void GameMaster(string thePlayer, string theSelectedPlayer, string premiumFigure, string SelectedPremiumFigure, string theOtherPlayer, string theOtherPremium) { // Contains the game logic and rules
+    public static void GameMaster(string thePlayer, string theSelectedPlayer, string premiumFigure, string SelectedPremiumFigure, string theOtherPlayer, string theOtherPremium, string stringInput) { // Contains the game logic and rules
         if (board[targetCoordinateX, targetCoordinateY] == thePlayer || board[targetCoordinateX, targetCoordinateY] == premiumFigure) {
             if (board[targetCoordinateX, targetCoordinateY] == thePlayer) {
                 board[targetCoordinateX, targetCoordinateY] = theSelectedPlayer;
                 isPremiumSelected = false;
+                counter++;
+                log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |Piece Chosen   |";
             } else if (board[targetCoordinateX, targetCoordinateY] == premiumFigure) {
                 board[targetCoordinateX, targetCoordinateY] = SelectedPremiumFigure;
                 isPremiumSelected = true;
+                counter++;
+                log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |Piece Chosen   |";
             }
 
             playerCoordinateX = inputCoordinates.Item1;
@@ -248,18 +264,23 @@ class Cheeckers
                     board[playerCoordinateX, playerCoordinateY] = blackTile;
                     board[targetCoordinateX, targetCoordinateY] = thePlayer;
                     player1Moved = !player1Moved;
+                    counter++;
+                    log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |Piece Moved    |";
                 }
             } else {
                 if (CheckIfValidInput(false, true, theOtherPlayer, theOtherPremium)) {
                     board[playerCoordinateX, playerCoordinateY] = blackTile;
                     board[targetCoordinateX, targetCoordinateY] = premiumFigure;
                     player1Moved = !player1Moved;
+                    counter++;
+                    log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |Piece Moved   |";
                 }
             }
 
             possibleCoordinateX = (0,0);
             possibleCoordinateX = (0,0);
             isPremiumSelected = null;
+
         } else if (board[targetCoordinateX, targetCoordinateY] == theOtherPlayer || board[targetCoordinateX, targetCoordinateY] == theOtherPremium) {
             if (isPremiumSelected == false) {
                 if (CheckIfValidInput(true, false, theOtherPlayer, theOtherPremium)) {
@@ -267,6 +288,8 @@ class Cheeckers
                     board[targetCoordinateX, targetCoordinateY] = blackTile;
                     board[behindTargetCoordinateX, behindTargetCoordinateY] = thePlayer;
                     player1Moved = !player1Moved;
+                    counter++;
+                    log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |{thePlayer} ate {theOtherPlayer}        |";
                 }
             } else {
                 if (CheckIfValidInput(true, true, theOtherPlayer, theOtherPremium)) {
@@ -274,6 +297,8 @@ class Cheeckers
                     board[targetCoordinateX, targetCoordinateY] = blackTile;
                     board[behindTargetCoordinateX, behindTargetCoordinateY] = premiumFigure;
                     player1Moved = !player1Moved;
+                    counter++;
+                    log = $"\n ENTRY {FormatString(counter, 3, ' ', true)} |{stringInput}            |({FormatString(inputCoordinates.Item1, 2, ' ', false)},{FormatString(inputCoordinates.Item2, 2, ' ', true)})            |{thePlayer} ate {theOtherPlayer}        |";
                 }
             }
             
@@ -372,8 +397,7 @@ class Cheeckers
                     if (i == lowestX) board[i,j] = premium1;
 
                     player1Coordinates.Add((i,j));
-                    
-                    // Console.WriteLine($"player1 has {board[i,j]} on ({i},{j})"); // Useful for debug
+
                 } else if (board[i,j] == player2 || board[i,j] == selectedPlayer2 || board[i,j] == premium2 || board[i,j] == selectedPremium2) {
 
                     if (board[i,j] == selectedPlayer2) board[i,j] = player2;
@@ -382,10 +406,60 @@ class Cheeckers
                     if (i == highestX) board[i,j] = premium2;
 
                     player2Coordinates.Add((i,j));
-
-                    // Console.WriteLine($"player2 has {board[i,j]} on ({i},{j})"); // Useful for debug
                 }
             }
         }
+    }
+
+    static string ManageLogFiles() {
+        if (!Directory.Exists(Path.Combine(basePath, "Logs"))) Directory.CreateDirectory(Path.Combine(basePath, "Logs"));
+        string filePath;
+        
+        for (int i = 1; i <= 256; i++) {
+            filePath = basePath + @"Logs\log" + i + ".txt";
+
+            if (File.Exists(filePath)) {
+                continue;
+
+            } else {
+                using (File.CreateText(filePath)) {};
+                
+                using (StreamWriter logs = File.AppendText(filePath)) {
+                    logs.WriteLine("\n                        --- Log File ---                        \n");
+                    logs.WriteLine("            INPUT          INSTRUCTION         OUTCOME          ");
+                    logs.WriteLine("           ____________________________________________________ ");
+                    logs.Write(" ENTRY 0   |RUN / START   |(20,0 )            |Game started   | ");
+                }
+                
+                return filePath;
+            }
+        }
+
+        filePath = basePath + @"Logs/LogXXX.txt";
+        if (File.Exists(filePath)) File.Delete(filePath);
+        using (File.CreateText(filePath)) {}
+        return filePath;
+    }
+
+    public static void LogIt(string targetPath, string content) {
+        using (StreamWriter logs = File.AppendText(targetPath)) {
+            logs.Write(content);
+        }
+    }
+
+    public static string FormatString(int input, byte maxLength, char filler, bool justifyToLeft) {
+        string result = input.ToString();
+
+        if (justifyToLeft) {
+            for (int i = maxLength - result.Length; i >= 1; i--) {
+                result = result + filler;
+            }
+        } else if (!justifyToLeft) {
+            for (int i = maxLength - result.Length; i >= 1; i--) {
+                result = filler + result;
+            }
+        }
+
+        return result;
     }
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj": {}
+    "C:\\Users\\itali\\desktop\\c#\\mywork\\checkers\\checkers v1.0\\Cheeckers.csproj": {}
   },
   "projects": {
-    "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj": {
+    "C:\\Users\\itali\\desktop\\c#\\mywork\\checkers\\checkers v1.0\\Cheeckers.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj",
+        "projectUniqueName": "C:\\Users\\itali\\desktop\\c#\\mywork\\checkers\\checkers v1.0\\Cheeckers.csproj",
         "projectName": "Cheeckers",
-        "projectPath": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\Cheeckers.csproj",
+        "projectPath": "C:\\Users\\itali\\desktop\\c#\\mywork\\checkers\\checkers v1.0\\Cheeckers.csproj",
         "packagesPath": "C:\\Users\\itali\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\itali\\Desktop\\C#\\MyWork\\checkers\\checkers v1.0\\obj\\",
+        "outputPath": "C:\\Users\\itali\\desktop\\c#\\mywork\\checkers\\checkers v1.0\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\itali\\AppData\\Roaming\\NuGet\\NuGet.Config"
