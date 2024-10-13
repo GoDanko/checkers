@@ -1,0 +1,11 @@
+
+                        --- Log File ---                        
+
+            INPUT          INSTRUCTION         OUTCOME          
+           ____________________________________________________ 
+ ENTRY 0   |RUN / START   |(20,0 )            |Game started   | 
+ ENTRY 1   |2b            |(14,7 )            |Piece Chosen   |
+ ENTRY 2   |2b            |(14,7 )            |Piece Chosen   |
+ ENTRY 3   |3c            |(12,9 )            |Piece Moved    |
+           ----------------------------------------------------
+ RESULT:   Game ended undisputed.

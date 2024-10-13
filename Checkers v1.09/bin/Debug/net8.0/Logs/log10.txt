@@ -1,0 +1,20 @@
+
+                        --- Log File ---                        
+
+            INPUT          INSTRUCTION         OUTCOME          
+           ____________________________________________________ 
+ ENTRY 0   |RUN / START   |(20,0 )            |Game started   | 
+ ENTRY 1   |2b            |(14,7 )            |Piece Chosen   |
+ ENTRY 2   |3c            |(12,9 )            |Piece Moved    |
+ ENTRY 3   |7c            |( 4,9 )            |Piece Chosen   |
+ ENTRY 4   |6b            |( 6,7 )            |Piece Moved    |
+ ENTRY 5   |3c            |(12,9 )            |Piece Chosen   |
+ ENTRY 6   |4d            |(10,11)            |Piece Moved    |
+ ENTRY 7   |6b            |( 6,7 )            |Piece Chosen   |
+ ENTRY 8   |5c            |( 8,9 )            |Piece Moved    |
+ ENTRY 9   |4d            |(10,11)            |Piece Chosen   |
+ ENTRY 10  |5c            |( 8,9 )            |x ate o        |
+ ENTRY 11  |7a            |( 4,5 )            |Piece Chosen   |
+ ENTRY 12  |6b            |( 6,7 )            |o ate x        |
+           ----------------------------------------------------
+ RESULT:   Game ended undisputed.

@@ -1,0 +1,8 @@
+
+                        --- Log File ---                        
+
+            INPUT          INSTRUCTION         OUTCOME          
+           ____________________________________________________ 
+ ENTRY 0   |RUN / START   |(20,0 )            |Game started   | 
+           ----------------------------------------------------
+ RESULT:   Player O has won. Congratulations!
